@@ -13,14 +13,7 @@ public class TestHooks {
 
     @Before
     public void setTheStage(Scenario scenario) {
-        try{
-            StepEventBus.getParallelEventBus().getBaseStepListener();
-        }
-        catch(Exception e){
-            StepEventBus.getParallelEventBus().registerListener(
-                    new BaseStepListener(new File("target"))
-            );
-        }
+
         OnStage.setTheStage(new OnlineCast());
         System.out.println("Stating Scenarios +"+ scenario.getName());
     }

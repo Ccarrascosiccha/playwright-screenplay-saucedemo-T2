@@ -11,4 +11,15 @@ public class InventoryPage {
         return  "text=" + productName;
     }
 
+    public static final String CART_LINK = "[data-test='shopping-cart-link']";
+    public static final String CART_BADGE = "[data-test='shopping-cart-badge']";
+
+    public static String addToCartButton(String productName) {
+        String slug = productName.toLowerCase().replace(" ", "-");
+        return "#add-to-cart-" + slug;
+    }
+    public static String removeFromCartButton(String productName) {
+        String slug = productName.toLowerCase().replace(" ", "-");
+        return "#remove-" + slug;
+    }
 }

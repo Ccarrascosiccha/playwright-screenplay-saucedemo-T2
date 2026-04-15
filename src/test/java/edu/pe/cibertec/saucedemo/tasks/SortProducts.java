@@ -11,7 +11,8 @@ public class SortProducts {
     public static Performable by(String sortOperation) {
         return Task.where("{0} sorts prodcuts by '" + sortOperation + "'",
                 SelectFromOptions.byVisibleText(sortOperation)
-                        .from(Target.the("").locatedBy(InventoryPage.ORDER_PRODUCT_SELECT))
+                        .from(Target.the("Sort dropdown")
+                                .locatedBy(InventoryPage.ORDER_PRODUCT_SELECT))
 
         );
     }
