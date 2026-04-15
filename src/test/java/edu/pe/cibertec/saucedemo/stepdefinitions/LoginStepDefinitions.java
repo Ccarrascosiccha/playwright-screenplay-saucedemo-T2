@@ -10,7 +10,11 @@ import io.cucumber.java.en.When;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.playwright.abilities.BrowseTheWebWithPlaywright;
-
+import com.microsoft.playwright.Page;
+import edu.pe.cibertec.saucedemo.tasks.VerifySesion;
+import edu.pe.cibertec.saucedemo.ui.InventoryPage;
+import static org.assertj.core.api.Assertions.assertThat;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static net.serenitybdd.screenplay.GivenWhenThen.seeThat;
 import static org.hamcrest.Matchers.*;
 
@@ -23,13 +27,6 @@ public class LoginStepDefinitions {
         actor.attemptsTo(OpenTheLoginPage.page());
     }
 
-    @When("she logs in with username {string} and password {string}")
-    public void loginWith(String username, String password) {
-        OnStage.theActorInTheSpotlight().attemptsTo(
-                LoginAs.user(username).withPassword(password)
-        );
-    }
-
     @Then("she should be redirect to the inventory page")
     public void shouldBeRedirectedToInventoryPage() {
         OnStage.theActorInTheSpotlight().should(
@@ -39,9 +36,8 @@ public class LoginStepDefinitions {
 
     @Then("she should see the page title {string}")
     public void shouldSeeThePageTitle(String pageTitle) {
-        OnStage.theActorInTheSpotlight().should(
-                seeThat(ThePageTitle.displayed(), equalTo(pageTitle))
-        );
+        Page page = BrowseTheWebWithPlaywright.as(OnStage.theActorInTheSpotlight()).getCurrentPage();
+        assertThat(page.locator(InventoryPage.PAGE_TITLE)).containsText(pageTitle);
     }
 
     @Then("she should see the error message {string}")
@@ -55,5 +51,42 @@ public class LoginStepDefinitions {
     public void shouldRemainOnTheLoginPage() {
 
     }
+    @When("she navigates to the cart page")
+    public void sheNavigatesToTheCartPage() {
+        OnStage.theActorInTheSpotlight().attemptsTo(
+                VerifySesion.navigateToCartPage()
+        );
+    }
 
+    @When("she navigates back to the inventory page")
+    public void sheNavigatesBackToTheInventoryPage() {
+        OnStage.theActorInTheSpotlight().attemptsTo(
+                VerifySesion.navigateBackToInventoryPage()
+        );
+    }
+
+    @Then("she should still be logged in")
+    public void sheShouldStillBeLoggedIn() {
+        Page page = BrowseTheWebWithPlaywright.as(OnStage.theActorInTheSpotlight()).getCurrentPage();
+        assertThat(page.locator(InventoryPage.PAGE_TITLE)).isVisible();
+    }
+
+    private long loginStartTime;
+    private long loginEndTime;
+
+    @When("she logs in with username {string} and password {string}")
+    public void loginWith(String username, String password) {
+        loginStartTime = System.currentTimeMillis();
+
+        OnStage.theActorInTheSpotlight().attemptsTo(
+                LoginAs.user(username).withPassword(password)
+        );
+
+        loginEndTime = System.currentTimeMillis();
+    }
+    @Then("the page load time should be greater than {int} milliseconds")
+    public void thePageLoadTimeShouldBeGreaterThanMilliseconds(Integer milliseconds) {
+        long totalTime = loginEndTime - loginStartTime;
+        assertThat(totalTime).isGreaterThan(milliseconds.longValue());
+    }
 }
